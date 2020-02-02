@@ -5,6 +5,7 @@ const connect_db = require('./db/connection').connect_db
 const queries = require('./utils/queries')
 const bodyParser = require('body-parser')
 const atendimento = require('./routes/atendimento/atendimento')
+const users = require('./routes/users/users')
 const cors = require('cors');
 var db = "";
 var app = express()
@@ -15,7 +16,13 @@ app.use(cors());
 var port = 3000
 
 app.post('/atendimento/novo', atendimento.novo)
-app.get('/atendimento/listar', atendimento.listar)
+app.get('/atendimento/listar', protectedRoute, atendimento.listar)
+
+app.post('/users/auth', users.auth)
+app.post('/users/cadastrar', users.cadastrar)
+
+app.post('/atendimento/agendar/:id', protectedRoute, atendimento.agendar)
+app.post('/atendimento/finalizar/:id', protectedRoute, atendimento.finalizar)
 
 // we must wait for mongodb container to go up (20 secs)
 setTimeout(async () => {
@@ -23,6 +30,7 @@ setTimeout(async () => {
     queries.setDatabase(db)
 
     atendimento.setQueries(queries)
+    users.setQueries(queries)
 
     app.listen(port, () => {
         console.log('api listeninng on port=' + port)
