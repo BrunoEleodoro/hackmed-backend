@@ -1,5 +1,4 @@
 var queries;
-var email_util = require('../../utils/email');
 var ObjectId = require('mongodb').ObjectId
 
 async function novo(req, res) {
@@ -14,8 +13,17 @@ async function novo(req, res) {
     })
 }
 
+async function listar(req, res) {
+    var result = await queries.read({ agendado: 0 }, {}, { timestamp: -1 }, 'atendimentos')
+    res.status(200).send({
+        status: 200,
+        response: result
+    })
+}
+
 module.exports = {
     novo: novo,
+    listar: listar,
     setQueries: (queriesParam) => {
         queries = queriesParam
     }

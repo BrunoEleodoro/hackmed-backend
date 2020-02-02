@@ -15,6 +15,7 @@ app.use(cors());
 var port = 3000
 
 app.post('/atendimento/novo', atendimento.novo)
+app.get('/atendimento/listar', atendimento.listar)
 
 // we must wait for mongodb container to go up (20 secs)
 setTimeout(async () => {
