@@ -1,0 +1,51 @@
+version: "3.7"
+
+volumes:
+  prometheus_data: {}
+
+services:
+  hackmed-database:
+    image: mongo
+    restart: always
+    container_name: hackmed-database
+    ports:
+      - 127.0.0.1:27017:27017
+    volumes:
+      - "./database/:/data/db"
+    networks:
+      - hackmed-network
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=bruno
+      - MONGO_INITDB_ROOT_PASSWORD=537389b8aff3e7304b48fabd8a420790
+
+  hackmed-auth:
+    image: brunoeleodoro/jwt_auth
+    restart: always
+    container_name: hackmed-auth
+    ports:
+      - 127.0.0.1:3001:3001
+    networks:
+      - hackmed-network
+    environment:
+      - SECRET=84c9414026be77fa56675c268c94eeca7644b7a5660d6901dae5625226d3b5a9
+
+  hackmed-api:
+    container_name: hackmed-api
+    restart: always
+    ports:
+      - 4000:3000
+    depends_on:
+      - hackmed-database
+    build:
+      context: ./hackmed_backend
+      dockerfile: Dockerfile
+    # links:
+    #     - hackmed-statsd:hackmed-statsd
+    networks:
+      - hackmed-network
+    environment:
+      - PROD=true
+      - MONGODB=mongodb://bruno:537389b8aff3e7304b48fabd8a420790@hackmed-database:27017/hackmed-database?authSource=admin
+
+networks:
+  hackmed-network:
